@@ -5,17 +5,34 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/shomali11/slacker"
 )
 
 func main() {
-	os.Setenv("SLACK_BOT_TOKEN", "xoxb-2149077173828-3428309413620-UcLPgYPiY8nA0G6qnm40yM3C")
-	os.Setenv("SLACK_APP_TOKEN", "xapp-1-A03CB819QEA-3449696936656-b4b4ee925d0de8200def1c51425ad6839fe8688543f6b5c663a5dc629b143829")
+	os.Setenv("SLACK_BOT_TOKEN", "<My-Token>")
+	os.Setenv("SLACK_APP_TOKEN", "<My-app-Token>")
 
 	bot := slacker.NewClient(os.Getenv("SLACK_BOT_TOKEN"), os.Getenv("SLACK_APP_TOKEN"))
 
 	go printCommandEvents(bot.CommandEvents())
+
+	bot.Command("my yob is <year>", &slacker.CommandDefinition{
+		Description: "age calculator",
+		Example:     "my yob is 1995",
+		Handler: func(botCtx slacker.BotContext, request slacker.Request, response slacker.ResponseWriter) {
+			year := request.Param("year")
+			yob, err := strconv.Atoi(year)
+
+			if err != nil {
+				println("error")
+			}
+
+			age := 2021 - yob
+			response.Reply(fmt.Sprintf("age is %d", age))
+		},
+	})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
